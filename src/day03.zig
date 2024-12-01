@@ -15,23 +15,28 @@ pub fn main() !void {
     defer arena_state.deinit();
     const arena = arena_state.allocator();
 
-    var inputLines = std.mem.tokenizeScalar(u8, data, '\n');
+    print("Part 1: {d}", part1(arena, data));
+    print("Part 2: {d}", part2(arena, data));
+}
 
+fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
+    // Start a loop through the lines of the input
+    var inputLines = std.mem.tokenizeScalar(u8, input, '\n');
     while (inputLines.next()) |line| {
         _ = line;
     }
 
-    _ = arena;
-}
-
-fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
     _ = allocator;
-    _ = input;
 }
 
 fn part2(allocator: std.mem.Allocator, input: []const u8) !i32 {
+    // Start a loop through the lines of the input
+    var inputLines = std.mem.tokenizeScalar(u8, input, '\n');
+    while (inputLines.next()) |line| {
+        _ = line;
+    }
+
     _ = allocator;
-    _ = input;
 }
 
 // Useful stdlib functions
@@ -71,7 +76,7 @@ test "part 1 example" {
     const arena = arena_state.allocator();
 
     const example_input =
-        \\3   4
+        \\
     ;
 
     try std.testing.expectEqual(0, try part1(arena, example_input));
@@ -83,7 +88,7 @@ test "part 2 example" {
     const arena = arena_state.allocator();
 
     const example_input =
-        \\3   4
+        \\
     ;
 
     try std.testing.expectEqual(0, try part2(arena, example_input));
