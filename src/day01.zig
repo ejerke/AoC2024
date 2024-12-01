@@ -8,10 +8,45 @@ const BitSet = std.DynamicBitSet;
 const util = @import("util.zig");
 const gpa = util.gpa;
 
-const data = @embedFile("data/day01.txt");
+const data: []const u8 = @embedFile("data/day01.txt");
 
 pub fn main() !void {
+
+    // Allocate some stuff
+    var left = std.ArrayList(i32).init(gpa);
+    left.deinit();
+    var right = std.ArrayList(i32).init(gpa);
+    right.deinit();
+
+    // Gather all the numbers into left and right
+    var splat = splitSca(u8, data, '\n');
+    while (splat.next()) |line| {
+        try left.append(try std.fmt.parseInt(i32,line[0..5], 10));
+        try right.append(try std.fmt.parseInt(i32,line[8..13], 10));
+    }
+
+    std.mem.sort(i32, left.items, {}, std.sort.asc(i32));
+    std.mem.sort(i32, right.items, {}, std.sort.asc(i32));
+
     
+    var cum: i64 = 0;
+    for (left.items, right.items) |l, r| {
+        cum += @abs(l-r);
+    }
+    print("part1: {d}\n", .{cum});
+
+    var part2: i64 = 0;
+    for (left.items) |i| {
+        var count: i32 = 0;
+        for (right.items) |j| {
+            if (i == j) {
+                print("sama {d} {d}\n", .{i, j});
+                count += 1;
+            }
+        }
+        part2 += i * count;
+    }
+    print("part2: {d}\n", .{part2});
 }
 
 // Useful stdlib functions
