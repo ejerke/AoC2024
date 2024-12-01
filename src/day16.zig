@@ -11,7 +11,27 @@ const gpa = util.gpa;
 const data = @embedFile("data/day16.txt");
 
 pub fn main() !void {
-    
+    var arena_state = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena_state.deinit();
+    const arena = arena_state.allocator();
+
+    var inputLines = std.mem.tokenizeScalar(u8, data, '\n');
+
+    while (inputLines.next()) |line| {
+        _ = line;
+    }
+
+    _ = arena;
+}
+
+fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
+    _ = allocator;
+    _ = input;
+}
+
+fn part2(allocator: std.mem.Allocator, input: []const u8) !i32 {
+    _ = allocator;
+    _ = input;
 }
 
 // Useful stdlib functions
@@ -44,3 +64,27 @@ const desc = std.sort.desc;
 // Generated from template/template.zig.
 // Run `zig build generate` to update.
 // Only unmodified days will be updated.
+
+test "part 1 example" {
+    var arena_state = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena_state.deinit();
+    const arena = arena_state.allocator();
+
+    const example_input =
+        \\3   4
+    ;
+
+    try std.testing.expectEqual(0, try part1(arena, example_input));
+}
+
+test "part 2 example" {
+    var arena_state = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena_state.deinit();
+    const arena = arena_state.allocator();
+
+    const example_input =
+        \\3   4
+    ;
+
+    try std.testing.expectEqual(0, try part2(arena, example_input));
+}

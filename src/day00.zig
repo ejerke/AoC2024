@@ -145,13 +145,7 @@ const desc = std.sort.desc;
 
 test "Easy" {
     const four = [_]u8 {'f', 'o', 'u', 'r', 0, 0};
-    if (isOneOfValid("nine") != 9) {
-        std.debug.panic("no ei ollu ysi", .{});
-    }
-    if (isOneOfValid(&four) != 4) {
-        std.debug.panic("no ei ollu neljä", .{});
-    }
-    if (isOneOfValid("one") != 1) {
-        std.debug.panic("no ei ollu yks", .{});
-    }
+    try std.testing.expectEqual(isOneOfValid("nine"), 9);
+    try std.testing.expectEqual(isOneOfValid(&four), 4);
+    try std.testing.expectEqual(isOneOfValid("one"), 1);
 }
