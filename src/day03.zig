@@ -15,28 +15,83 @@ pub fn main() !void {
     defer arena_state.deinit();
     const arena = arena_state.allocator();
 
-    print("Part 1: {d}", part1(arena, data));
-    print("Part 2: {d}", part2(arena, data));
+    print("Part 1: {any}\n", .{part1(arena, data)});
+    print("Part 2: {any}\n", .{part2(arena, data)});
+}
+
+fn parsePart(part: []const u8) i32 {
+    const comma =  indexOf(u8, part, ',') orelse return 0;
+    const closing = indexOf(u8, part, ')') orelse return 0;
+
+    if (comma > 3 or (closing-comma) > 4) {
+        return 0;
+    }
+
+    const left = parseInt(i32, part[0..comma], 10) catch {return 0;};
+    const right = parseInt(i32, part[comma+1..closing], 10) catch {return 0;};
+
+    return left*right;
 }
 
 fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
     // Start a loop through the lines of the input
     var inputLines = std.mem.tokenizeScalar(u8, input, '\n');
+    var ans: i32 = 0;
     while (inputLines.next()) |line| {
-        _ = line;
+        var possibleMul = splitSeq(u8, line, "mul(");
+
+        while (possibleMul.next()) |part| {
+            const ret = parsePart(part);
+            ans += ret; 
+        }
     }
 
     _ = allocator;
+    return ans;
 }
 
 fn part2(allocator: std.mem.Allocator, input: []const u8) !i32 {
     // Start a loop through the lines of the input
-    var inputLines = std.mem.tokenizeScalar(u8, input, '\n');
-    while (inputLines.next()) |line| {
-        _ = line;
+    var ans: i32 = 0;
+    var idx:usize = 0;
+    var oldIdx:usize = 0;
+    var do = true;
+    while (idx < input.len - 1 and oldIdx < input.len - 1) {
+        // FInd the index of the operator that will next change the do variable
+        if (do) {
+            const a = indexOfStr(u8, input, oldIdx, "don't()");
+            if (a) |*value| {
+                idx = value.*;
+            } else {
+                idx = input.len - 1;
+            }
+        } else {
+            const a = indexOfStr(u8, input, oldIdx, "do()");
+            if (a) |*value| {
+                idx = value.*;
+            } else {
+                idx = input.len - 1;
+            }
+        }
+
+        if (!do) {
+            do = !do;
+            oldIdx = idx;
+            continue;
+        }
+        var possibleMul = splitSeq(u8, input[oldIdx..idx], "mul(");
+
+        while (possibleMul.next()) |part| {
+            const ret = parsePart(part);
+            ans += ret; 
+        }
+        oldIdx = idx;
+
+        do = !do;
     }
 
     _ = allocator;
+    return ans;
 }
 
 // Useful stdlib functions
@@ -76,10 +131,10 @@ test "part 1 example" {
     const arena = arena_state.allocator();
 
     const example_input =
-        \\
+        \\xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
     ;
 
-    try std.testing.expectEqual(0, try part1(arena, example_input));
+    try std.testing.expectEqual(161, try part1(arena, example_input));
 }
 
 test "part 2 example" {
@@ -88,8 +143,10 @@ test "part 2 example" {
     const arena = arena_state.allocator();
 
     const example_input =
-        \\
+        \\laksdjlkasjd098309810923
+        \\xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))
+        \\asd123()don't()mul(2,3)do()mul(2,1)asd981237981723
     ;
 
-    try std.testing.expectEqual(0, try part2(arena, example_input));
+    try std.testing.expectEqual(50, try part2(arena, example_input));
 }
