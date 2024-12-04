@@ -15,8 +15,8 @@ pub fn main() !void {
     defer arena_state.deinit();
     const arena = arena_state.allocator();
 
-    print("Part 1: {d}", .{part1(arena, data)});
-    print("Part 2: {d}", .{part2(arena, data)});
+    print("Part 1: {any}\n", .{part1(arena, data)});
+    print("Part 2: {any}\n", .{part2(arena, data)});
 }
 
 fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
