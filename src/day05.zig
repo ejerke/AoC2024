@@ -19,15 +19,119 @@ pub fn main() !void {
     print("Part 2: {any}\n", .{part2(arena, data)});
 }
 
+// Filter away rules that contain numbers that are not in the currently inspected update
+fn filterRules(allocator: Allocator, rules: std.ArrayList([]const i32), update: []const i32) !std.ArrayList([]const i32) {
+    var newRules = std.ArrayList([]const i32).init(allocator);
+
+    for (rules.items) |rule| {
+        var foundLeft = false;
+        var foundRight = false;
+        for (update) |one| {
+            
+            if (rule[0] == one) {
+                foundLeft = true;
+            } else if (rule[1] == one) {
+                foundRight = true;
+            }
+            
+            
+            if (foundLeft and foundRight) {
+                newRules.append(rule) catch {return error.Pieleen;};
+                break;
+            }
+            
+        }
+    }
+    return newRules;
+}
+
+fn orderUpdate(allocator: Allocator, rules: std.ArrayList([]const i32), update: []const i32) !std.ArrayList(i32) {
+    var lhs = std.ArrayList(i32).init(allocator);
+    var rhs = std.ArrayList(i32).init(allocator);
+    var middle = std.ArrayList(i32).init(allocator);
+
+    const narrowedRules = filterRules(allocator, rules, update) catch {return error.Pieleen;};
+
+    print("'{any}'", .{update});
+    for (update) |num| {
+        var leftRules = std.ArrayList(i32).init(allocator);
+        var rightRules = std.ArrayList(i32).init(allocator);
+        for (narrowedRules.items) |rule| {
+            if ( rule[0] == num ) {
+                leftRules.append(num) catch {return error.Muisti;};
+            } else if (rule[1] == num ) {
+                rightRules.append(num) catch {return error.Muisti;};
+            }
+        }
+
+        if (leftRules.items.len == 0) {
+            rhs.append(num) catch {return error.Muisti;};
+        } else if (rightRules.items.len == 0) {
+            rhs.insert(0, num) catch {return error.Muisti;};
+        } else {
+            middle.append(num) catch {return error.Muisti;};
+        }
+    }
+
+    // Break condition
+
+    if (middle.items.len > 1) {
+        print("{any}  {any}  {any}\n\n", .{lhs.items, middle.items, rhs.items});
+        return orderUpdate(allocator, narrowedRules, middle.items) catch {return error.Hups;};
+    }
+
+    print("final: {any}  {any}  {any}\n\n", .{lhs.items, middle.items, rhs.items});
+    lhs.appendSlice(middle.items) catch {return error.Muisti;};
+    lhs.appendSlice(rhs.items) catch {return error.Muisti;};
+    return lhs;
+}
+
 fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
     // Start a loop through the lines of the input
     var inputLines = std.mem.tokenizeScalar(u8, input, '\n');
+    var rules = std.ArrayList([]const i32).init(allocator);
+    var updates = std.ArrayList([]const i32).init(allocator);
+    var firstPart = true;
+
+    // Gather the input as i32s to two lists.
     while (inputLines.next()) |line| {
-        _ = line;
+        if (line[0] == ';') {
+            firstPart = false;
+            continue;
+        }
+
+        if (firstPart) {
+            var rule = tokenizeSca(u8, line, '|');
+            var helper = std.ArrayList(i32).init(allocator);
+            helper.append(try parseInt(i32, rule.next().?, 10)) catch {return error.Muisti;};
+            helper.append(try parseInt(i32, rule.next().?, 10)) catch {return error.Muisti;};
+
+            rules.append(helper.items) catch {return -1;};
+
+        } else {
+            var help = tokenizeSca(u8, line, ',');
+            var cumulator = std.ArrayList(i32).init(allocator);
+            while (help.next()) |num| {
+                cumulator.append(try parseInt(i32, num, 10)) catch {return -1;};
+            }
+            updates.append(cumulator.items) catch {return -1;};
+        }
     }
 
-    _ = allocator;
-    return 0;
+    var corrects = std.ArrayList([]const i32).init(allocator);
+    for (updates.items) |update| {
+        const ans = orderUpdate(allocator, rules, update) catch {return -1;};
+        if (std.mem.eql(i32, update, ans.items)) {
+            corrects.append(ans.items) catch {return -1;};
+        }
+    }
+    var cum: i32 = 0;
+
+    for (corrects.items) |list| {
+        cum += list[(list.len-1)/2];
+    }
+
+    return cum;
 }
 
 fn part2(allocator: std.mem.Allocator, input: []const u8) !i32 {
@@ -78,10 +182,37 @@ test "part 1 example" {
     const arena = arena_state.allocator();
 
     const example_input =
-        \\
+        \\47|53
+        \\97|13
+        \\97|61
+        \\97|47
+        \\75|29
+        \\61|13
+        \\75|53
+        \\29|13
+        \\97|29
+        \\53|29
+        \\61|53
+        \\97|53
+        \\61|29
+        \\47|13
+        \\75|47
+        \\97|75
+        \\47|61
+        \\75|61
+        \\47|29
+        \\75|13
+        \\53|13
+        \\;
+        \\75,47,61,53,29
+        \\97,61,53,29,13
+        \\75,29,13
+        \\75,97,47,61,53
+        \\61,13,29
+        \\97,13,75,29,47
     ;
 
-    try std.testing.expectEqual(0, try part1(arena, example_input));
+    try std.testing.expectEqual(143, try part1(arena, example_input));
 }
 
 test "part 2 example" {
