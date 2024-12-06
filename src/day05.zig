@@ -52,7 +52,6 @@ fn orderUpdate(allocator: Allocator, rules: std.ArrayList([]const i32), update: 
 
     const narrowedRules = filterRules(allocator, rules, update) catch {return error.Pieleen;};
 
-    print("'{any}'", .{update});
     for (update) |num| {
         var leftRules = std.ArrayList(i32).init(allocator);
         var rightRules = std.ArrayList(i32).init(allocator);
@@ -76,11 +75,9 @@ fn orderUpdate(allocator: Allocator, rules: std.ArrayList([]const i32), update: 
     // Break condition
 
     if (middle.items.len > 1) {
-        print("{any}  {any}  {any}\n\n", .{lhs.items, middle.items, rhs.items});
         return orderUpdate(allocator, narrowedRules, middle.items) catch {return error.Hups;};
     }
 
-    print("final: {any}  {any}  {any}\n\n", .{lhs.items, middle.items, rhs.items});
     lhs.appendSlice(middle.items) catch {return error.Muisti;};
     lhs.appendSlice(rhs.items) catch {return error.Muisti;};
     return lhs;
