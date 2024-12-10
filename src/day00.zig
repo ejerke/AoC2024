@@ -10,7 +10,7 @@ const gpa = util.gpa;
 
 const data = @embedFile("data/day00.txt");
 
-const valid = [_][]const u8 {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
+const valid = [_][]const u8{ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
 
 fn isOneOfValid(str: []const u8) u8 {
     var number: u8 = 1;
@@ -19,13 +19,12 @@ fn isOneOfValid(str: []const u8) u8 {
     for (valid) |num| {
         var i: u8 = 0;
 
-
         // Loop through the characters of that number
         for (num) |char| {
 
             // If i is still small enough, and we haven't found a mismatching char,
-            // Continue 
-            if ( char != str[i] ) {
+            // Continue
+            if (char != str[i]) {
                 break;
             }
 
@@ -43,8 +42,7 @@ fn isOneOfValid(str: []const u8) u8 {
 
 // 1st day AoC 2023 included here as a warmup.
 pub fn main() !void {
-
-    const four = [_]u8 {'f', 'o', 'u', 'r', 0, 0};
+    const four = [_]u8{ 'f', 'o', 'u', 'r', 0, 0 };
     if (isOneOfValid(&four) != 4) {
         std.debug.print("ei oll", .{});
     }
@@ -66,13 +64,12 @@ pub fn main() !void {
                     leftMostFound = true;
                 }
                 second = line[i] - '0';
-
             } else { // Loop until no longer alphabetic, or up to 5
-                var possible = [_]u8 {line[i], 0, 0, 0, 0, 0};
+                var possible = [_]u8{ line[i], 0, 0, 0, 0, 0 };
                 var j: usize = 1;
 
                 // j is 0-4, i+j < length of the line, and that character has to still be alphabetic
-                while ( j < 5 and i + j < line.len and std.ascii.isAlphabetic(line[i + j])) {
+                while (j < 5 and i + j < line.len and std.ascii.isAlphabetic(line[i + j])) {
 
                     // Append that to the accumulated string and test for a match
                     possible[j] = line[i + j];
@@ -91,7 +88,6 @@ pub fn main() !void {
                         }
                         second = value; // Found a new rightmost
                     }
-                    
 
                     j += 1;
                 }
@@ -105,11 +101,10 @@ pub fn main() !void {
 
         line = splat.next() orelse break;
         if (f) {
-            std.debug.print("{d}\n", .{cum});
             f = false;
         }
     }
-    std.debug.print("{d}\n", .{cum});
+    print("{d}\n", .{cum});
 }
 
 // Useful stdlib functions
@@ -144,7 +139,7 @@ const desc = std.sort.desc;
 // Only unmodified days will be updated.
 
 test "Easy" {
-    const four = [_]u8 {'f', 'o', 'u', 'r', 0, 0};
+    const four = [_]u8{ 'f', 'o', 'u', 'r', 0, 0 };
     try std.testing.expectEqual(isOneOfValid("nine"), 9);
     try std.testing.expectEqual(isOneOfValid(&four), 4);
     try std.testing.expectEqual(isOneOfValid("one"), 1);

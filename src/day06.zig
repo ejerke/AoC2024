@@ -35,7 +35,7 @@ fn aheadIs(grid: std.ArrayList([]const u8), i: usize, j: usize, facing: i32) i32
         }
         newJ += 1;
     } else if (facing == 2) {
-        if (i == grid.items.len - 1 ) {
+        if (i == grid.items.len - 1) {
             return -1;
         }
         newI += 1;
@@ -56,7 +56,7 @@ fn aheadIs(grid: std.ArrayList([]const u8), i: usize, j: usize, facing: i32) i32
 
 // -1: termination. 0: ahead is an empty position. 1: ahead is an obstacle
 // Facing should be 0: up, 1: right, 2: down, 3: left
-fn aheadIsMut(grid: std.ArrayList([] u8), i: usize, j: usize, facing: i32) i32 {
+fn aheadIsMut(grid: std.ArrayList([]u8), i: usize, j: usize, facing: i32) i32 {
     var newI = i;
     var newJ = j;
     if (facing == 0) {
@@ -70,7 +70,7 @@ fn aheadIsMut(grid: std.ArrayList([] u8), i: usize, j: usize, facing: i32) i32 {
         }
         newJ += 1;
     } else if (facing == 2) {
-        if (i == grid.items.len - 1 ) {
+        if (i == grid.items.len - 1) {
             return -1;
         }
         newI += 1;
@@ -90,7 +90,6 @@ fn aheadIsMut(grid: std.ArrayList([] u8), i: usize, j: usize, facing: i32) i32 {
 }
 
 fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
-    print("\n", .{});
     // Start a loop through the lines of the input
     var inputLines = std.mem.tokenizeScalar(u8, input, '\n');
     var grid = std.ArrayList([]const u8).init(allocator);
@@ -104,7 +103,9 @@ fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
             i = lineCount;
             j = value.*;
         }
-        grid.append(line) catch {return error.Muisti;};
+        grid.append(line) catch {
+            return error.Muisti;
+        };
 
         lineCount += 1;
     }
@@ -113,12 +114,14 @@ fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
 
     var facing: i32 = 0;
     var steps: i32 = 1;
-    beenThere.put(i*200+j, true) catch {return error.OivOi;};
+    beenThere.put(i * 200 + j, true) catch {
+        return error.OivOi;
+    };
     while (true) {
         const next = aheadIs(grid, i, j, facing);
         if (next == -1) {
             break;
-        } else if ( next == 1) {
+        } else if (next == 1) {
             facing = @mod(facing + 1, 4);
             continue;
         } else {
@@ -134,10 +137,12 @@ fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
                 return error.Buruhurhuh;
             }
 
-            if (beenThere.contains(i*200+j)) {
+            if (beenThere.contains(i * 200 + j)) {
                 continue;
             } else {
-                beenThere.put(i*200+j, true) catch {return error.OivOi;};
+                beenThere.put(i * 200 + j, true) catch {
+                    return error.OivOi;
+                };
                 steps += 1;
             }
         }
@@ -146,7 +151,7 @@ fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
     return steps;
 }
 
-fn countSteps(allocator: Allocator, grid: std.ArrayList([] u8), begi: usize, begj: usize) i32 {
+fn countSteps(allocator: Allocator, grid: std.ArrayList([]u8), begi: usize, begj: usize) i32 {
     var i = begi;
     var j = begj;
 
@@ -156,13 +161,15 @@ fn countSteps(allocator: Allocator, grid: std.ArrayList([] u8), begi: usize, beg
     var iterations: i32 = -1;
     var facing: i32 = 0;
     var steps: i32 = 1;
-    beenThere.put(i*200+j, true) catch {return -2;};
+    beenThere.put(i * 200 + j, true) catch {
+        return -2;
+    };
     while (true) {
         iterations += 1;
         const next = aheadIsMut(grid, i, j, facing);
         if (next == -1) {
             break;
-        } else if ( next == 1) {
+        } else if (next == 1) {
             facing = @mod(facing + 1, 4);
             continue;
         } else {
@@ -178,13 +185,15 @@ fn countSteps(allocator: Allocator, grid: std.ArrayList([] u8), begi: usize, beg
                 return -2;
             }
 
-            if (beenThere.contains(i*200+j)) {
+            if (beenThere.contains(i * 200 + j)) {
                 if (iterations > 20000) {
                     return -1;
                 }
                 continue;
             } else {
-                beenThere.put(i*200+j, true) catch {return -2;};
+                beenThere.put(i * 200 + j, true) catch {
+                    return -2;
+                };
                 steps += 1;
             }
         }
@@ -196,7 +205,7 @@ fn part2(allocator: std.mem.Allocator, input: []const u8) !i32 {
     // Start a loop through the lines of the input
     var inputLines = std.mem.tokenizeScalar(u8, input, '\n');
     var grid = std.ArrayList([]const u8).init(allocator);
-    var alterable = std.ArrayList([] u8).init(allocator);
+    var alterable = std.ArrayList([]u8).init(allocator);
 
     grid.deinit();
     var lineCount: usize = 0;
@@ -208,11 +217,17 @@ fn part2(allocator: std.mem.Allocator, input: []const u8) !i32 {
             i = lineCount;
             j = value.*;
         }
-        grid.append(line) catch {return error.Muisti;};
+        grid.append(line) catch {
+            return error.Muisti;
+        };
 
-        const a = allocator.alloc(u8, line.len) catch {return error.Muisti;};
+        const a = allocator.alloc(u8, line.len) catch {
+            return error.Muisti;
+        };
         @memcpy(a, line);
-        alterable.append(a) catch {return error.Muisti;};
+        alterable.append(a) catch {
+            return error.Muisti;
+        };
 
         lineCount += 1;
     }

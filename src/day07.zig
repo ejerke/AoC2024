@@ -39,7 +39,7 @@ fn calculateTheRest(answer: u64, cumulated: u64, equation: []const u64) u64 {
     var a: u64 = 0;
     for (0..2) |operator| {
         const cumu = calculateThese(cumulated, operator, equation[0]);
-        a = calculateTheRest(answer,cumu,  equation[1..equation.len]);
+        a = calculateTheRest(answer, cumu, equation[1..equation.len]);
         if (a == answer) {
             return a;
         }
@@ -60,7 +60,7 @@ fn findIfPossible(equation: []const u64) bool {
 
     for (0..2) |operator| {
         const cumu = calculateThese(equation[1], operator, equation[2]);
-        const a = calculateTheRest(answer,cumu,  equation[3..equation.len]);
+        const a = calculateTheRest(answer, cumu, equation[3..equation.len]);
         if (a == answer) {
             return true;
         }
@@ -72,18 +72,15 @@ fn findIfPossible(equation: []const u64) bool {
 fn part1(allocator: std.mem.Allocator, input: []const u8) !u64 {
     // Start a loop through the lines of the input
     var inputLines = std.mem.tokenizeScalar(u8, input, '\n');
-    var equations = std.ArrayList([] u64).init(allocator);
+    var equations = std.ArrayList([]u64).init(allocator);
     while (inputLines.next()) |line| {
         var parts = splitSca(u8, line, ' ');
         var equation = std.ArrayList(u64).init(allocator);
         var answer = parts.next().?;
-        try equation.append(try parseInt(u64, answer[0..answer.len-1], 10));
+        try equation.append(try parseInt(u64, answer[0 .. answer.len - 1], 10));
 
         while (parts.next()) |part| {
-            try equation.append( try parseInt(u64, part, 10));
-        }
-        if (equation.items[0] == 36109644495 or equation.items[0] == 71836380) {
-            print("{any}\n", .{equation.items});
+            try equation.append(try parseInt(u64, part, 10));
         }
         try equations.append(equation.items);
     }
@@ -108,7 +105,7 @@ fn calculateThese2(num1: u64, opreator: usize, num2: u64) u64 {
         return num1 * num2;
     } else if (opreator == 2) {
         var num_digits: u64 = 10;
-        var temp = num2/10;
+        var temp = num2 / 10;
 
         while (temp > 0) {
             temp /= 10;
@@ -129,7 +126,7 @@ fn calculateTheRest2(answer: u64, cumulated: u64, equation: []const u64) u64 {
     var a: u64 = 0;
     for (0..3) |operator| {
         const cumu = calculateThese2(cumulated, operator, equation[0]);
-        a = calculateTheRest2(answer,cumu,  equation[1..equation.len]);
+        a = calculateTheRest2(answer, cumu, equation[1..equation.len]);
         if (a == answer) {
             return a;
         }
@@ -142,7 +139,7 @@ fn findIfPossible2(equation: []const u64) bool {
 
     for (0..3) |operator| {
         const cumu = calculateThese2(equation[1], operator, equation[2]);
-        const a = calculateTheRest2(answer,cumu,  equation[3..equation.len]);
+        const a = calculateTheRest2(answer, cumu, equation[3..equation.len]);
         if (a == answer) {
             return true;
         }
@@ -154,18 +151,15 @@ fn findIfPossible2(equation: []const u64) bool {
 fn part2(allocator: std.mem.Allocator, input: []const u8) !u64 {
     // Start a loop through the lines of the input
     var inputLines = std.mem.tokenizeScalar(u8, input, '\n');
-    var equations = std.ArrayList([] u64).init(allocator);
+    var equations = std.ArrayList([]u64).init(allocator);
     while (inputLines.next()) |line| {
         var parts = splitSca(u8, line, ' ');
         var equation = std.ArrayList(u64).init(allocator);
         var answer = parts.next().?;
-        try equation.append(try parseInt(u64, answer[0..answer.len-1], 10));
+        try equation.append(try parseInt(u64, answer[0 .. answer.len - 1], 10));
 
         while (parts.next()) |part| {
-            try equation.append( try parseInt(u64, part, 10));
-        }
-        if (equation.items[0] == 36109644495 or equation.items[0] == 71836380) {
-            print("{any}\n", .{equation.items});
+            try equation.append(try parseInt(u64, part, 10));
         }
         try equations.append(equation.items);
     }
@@ -232,7 +226,7 @@ test "part 1 example" {
         \\36109644495: 8 9 54 6 6 39 1 9 7 7 1 15
     ;
 
-    try std.testing.expectEqual(3749+71836380+36109644495, try part1(arena, example_input));
+    try std.testing.expectEqual(3749 + 71836380 + 36109644495, try part1(arena, example_input));
 }
 
 test "part 2 example" {
