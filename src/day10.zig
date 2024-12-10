@@ -202,19 +202,9 @@ fn part2(allocator: std.mem.Allocator, input: []const u8) !i32 {
         const help = findScore(allocator, memory, start[0], start[1]) catch {
             return error.Muisti;
         };
-        // Single trailhead. Make sure same nine won't be counted here twice
-        // var nines = std.AutoHashMap(u16, bool).init(allocator);
         for (help) |_| {
             cumu += 1;
-            // if (nines.contains(@as(u16, nine[0]) * 50 + nine[1])) {
-            //     continue;
-            // } else {
-            //     nines.put(@as(u16, nine[0]) * 50 + nine[1], true) catch {
-            //         return error.Muisti;
-            //     };
-            // }
         }
-        // nines.deinit();
     }
 
     return cumu;
