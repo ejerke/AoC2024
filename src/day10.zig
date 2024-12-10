@@ -22,12 +22,133 @@ pub fn main() !void {
 fn part1(allocator: std.mem.Allocator, input: []const u8) !i32 {
     // Start a loop through the lines of the input
     var inputLines = std.mem.tokenizeScalar(u8, input, '\n');
+    var memory = std.ArrayList([]const u8).init(allocator);
+    var starts = std.ArrayList([2]u8).init(allocator);
+    var i: u8 = 0;
     while (inputLines.next()) |line| {
-        _ = line;
+        memory.append(line) catch {
+            return error.Muisti;
+        };
+
+        var j: u8 = 0;
+        for (line) |char| {
+            if (char == '0') {
+                const helper = [_]u8{ i, j };
+                starts.append(helper) catch {
+                    return error.Muisti;
+                };
+            }
+            j += 1;
+        }
+        i += 1;
     }
 
-    _ = allocator;
-    return 0;
+    // Find the number of different 9's reachable from each trailhead.
+    var cumu: i32 = 0;
+    for (starts.items) |start| {
+        const help = findScore(allocator, memory, start[0], start[1]) catch {
+            return error.Muisti;
+        };
+        // Single trailhead. Make sure same nine won't be counted here twice
+        var nines = std.AutoHashMap(u16, bool).init(allocator);
+        for (help) |nine| {
+            print("{d} {d}\n", .{ nine[0], nine[1] });
+            if (nines.contains(nine[0] * 50 + nine[1])) {
+                continue;
+            } else {
+                cumu += 1;
+                nines.put(nine[0] * 50 + nine[1], true) catch {
+                    return error.Muisti;
+                };
+            }
+        }
+        nines.deinit();
+    }
+
+    return cumu;
+}
+
+fn findScore(allocator: Allocator, memory: std.ArrayList([]const u8), begi: u8, begj: u8) ![][]const u8 {
+    var cumu = std.ArrayList([]const u8).init(allocator);
+
+    // Up
+    if (begi > 0 and memory.items[begi][begj] + 1 == memory.items[begi - 1][begj]) {
+        if (memory.items[begi - 1][begj] == '9') {
+            const help = [2]u8{ begi - 1, begj };
+            cumu.append(&help) catch {
+                return error.Muisti;
+            };
+        } else {
+            const ret = findScore(allocator, memory, begi - 1, begj) catch {
+                return error.Muisti;
+            };
+            for (ret) |one| {
+                cumu.append(one) catch {
+                    return error.Muisti;
+                };
+            }
+        }
+    }
+
+    // Right
+    if (begj < memory.items[begi].len - 1 and memory.items[begi][begj] + 1 == memory.items[begi][begj + 1]) {
+        if (memory.items[begi][begj + 1] == '9') {
+            const help = [2]u8{ begi, begj + 1 };
+            cumu.append(&help) catch {
+                return error.Muisti;
+            };
+        } else {
+            const ret = findScore(allocator, memory, begi, begj + 1) catch {
+                return error.Muisti;
+            };
+            print("{any}\n", .{ret});
+            for (ret) |one| {
+                cumu.append(one) catch {
+                    return error.Muisti;
+                };
+            }
+        }
+    }
+
+    // Down
+    if (begi < memory.items.len - 1 and memory.items[begi][begj] + 1 == memory.items[begi + 1][begj]) {
+        if (memory.items[begi + 1][begj] == '9') {
+            const help = [2]u8{ begi + 1, begj };
+            cumu.append(&help) catch {
+                return error.Muisti;
+            };
+        } else {
+            const ret = findScore(allocator, memory, begi + 1, begj) catch {
+                return error.Muisti;
+            };
+            for (ret) |one| {
+                cumu.append(one) catch {
+                    return error.Muisti;
+                };
+            }
+        }
+    }
+
+    // Left
+    if (begj > 0 and memory.items[begi][begj] + 1 == memory.items[begi][begj - 1]) {
+        if (memory.items[begi][begj - 1] == '9') {
+            const help = [2]u8{ begi, begj - 1 };
+            cumu.append(&help) catch {
+                return error.Muisti;
+            };
+        } else {
+            const ret = findScore(allocator, memory, begi, begj - 1) catch {
+                return error.Muisti;
+            };
+            for (ret) |one| {
+                cumu.append(one) catch {
+                    return error.Muisti;
+                };
+            }
+        }
+    }
+
+    return cumu.items;
 }
 
 fn part2(allocator: std.mem.Allocator, input: []const u8) !i32 {
@@ -78,10 +199,17 @@ test "part 1 example" {
     const arena = arena_state.allocator();
 
     const example_input =
-        \\
+        \\89010123
+        \\78121874
+        \\87430965
+        \\96549874
+        \\45678903
+        \\32019012
+        \\01329801
+        \\10456732
     ;
 
-    try std.testing.expectEqual(0, try part1(arena, example_input));
+    try std.testing.expectEqual(36, try part1(arena, example_input));
 }
 
 test "part 2 example" {
